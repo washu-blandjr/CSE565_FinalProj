@@ -1,0 +1,61 @@
+function test_findpeaks()
+    fprintf('MATLAB TEST: \n');
+    % Create test image
+    width = 40;
+    height = 40;
+    img = create_test_image(width, height);
+
+    % Create mask (all true)
+    mask = true(width, height);
+
+    % Test parameters
+    cutOff = 0.3;
+    minSep = 5.0;
+
+    % Run findpeaks
+    [Npf, spx, spy] = findpeaks(img, mask, cutOff, minSep);
+
+    % Print results
+    fprintf('Number of peaks found: %d\n', Npf);
+    for i = 1:Npf
+        fprintf('Peak %d: position (%d, %d), intensity %f\n', ...
+                i, spx(i), spy(i), img(spx(i), spy(i)));
+    end
+
+    % Plot results
+    figure;
+    imagesc(img);
+    colormap('jet');
+    colorbar;
+    hold on;
+    plot(spy, spx, 'r+', 'MarkerSize', 10, 'LineWidth', 2);
+    title('Test Image with Detected Peaks');
+    xlabel('Y');
+    ylabel('X');
+    axis image;
+
+    % Print peak locations to compare with C++
+    fprintf('\nPeak locations:\n');
+    for i = 1:Npf
+        fprintf('[%d, %d]\n', spx(i), spy(i));
+    end
+end
+
+function img = create_test_image(width, height)
+    [X, Y] = meshgrid(1:height, 1:width);
+    img = zeros(width, height);
+
+    % Add three Gaussian peaks
+    peaks = [
+        10, 10, 1.0, 2.0;  % x, y, amplitude, width
+        20, 20, 0.8, 2.0;
+        30, 30, 0.6, 2.0
+    ];
+
+    for i = 1:size(peaks, 1)
+        dx = X - peaks(i,1);
+        dy = Y - peaks(i,2);
+        img = img + peaks(i,3) * exp(-(dx.^2 + dy.^2)/(2*peaks(i,4)^2));
+    end
+end
+test_findpeaks()
