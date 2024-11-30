@@ -1,0 +1,30 @@
+function test_chiimg()
+    % Create simple test matrices
+    img = [
+        1.0, 2.0, 3.0;
+        4.0, 5.0, 6.0;
+        7.0, 8.0, 9.0
+    ];
+    
+    ip = [
+        0.5, 1.0;
+        1.0, 0.5
+    ];
+    
+    % Run chiimg
+    [result_chiimg, result_Wip2] = chiimg(img, ip);
+    
+    % Print results
+    disp('MATLAB Input image:');
+    disp(img);
+    
+    disp('MATLAB Template:');
+    disp(ip);
+    
+    disp('MATLAB Results:');
+    disp('MATLAB chiimg:');
+    disp(result_chiimg);
+    disp('MATLAB Wip2:');
+    disp(result_Wip2);
+end
+test_chiimg()
