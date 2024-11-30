@@ -28,7 +28,7 @@ std::vector<std::vector<double>> createTestImage(size_t width, size_t height) {
 }
 
 int main() {
-    std::cout << "C++ TEST: " << std::endl;
+    std::cout << "C++ TEST:" << std::endl;
     // Create test image
     const size_t width = 40;
     const size_t height = 40;
