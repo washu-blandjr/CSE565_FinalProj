@@ -11,6 +11,6 @@ https://adaptivesupport.amd.com/s/article/Vitis-Libraries-Compiling-and-Installi
 
 
 ### Timing (Benchmark 2)
-- Base C++ code running on linux: 228 seconds
+- Base C++ code running on linux: 9769 seconds
 - Unoptimized vitis implementation:
 - Optimized vitis implementation: 
