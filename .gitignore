@@ -1,0 +1,3 @@
+tests/benchmark_chiimg2/input.txt
+tests/benchmark_chiimg2/output.txt
+tests/benchmark_chiimg2/golden.txt
