@@ -1,88 +1,104 @@
 #include <iostream>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 #include <chrono>
 #include "../../chiimg.h"
 
-void printPerformanceStats(const std::string& testName,
-                          std::chrono::microseconds duration,
-                          int iterations) {
-    double seconds = duration.count() / 1000000.0;
-    std::cout << "\n" << testName << " Performance:\n";
-    std::cout << "Total time: " << seconds << " seconds\n";
-    std::cout << "Average time per iteration: " << (seconds / iterations) << " seconds\n";
-    std::cout << "Iterations per second: " << (iterations / seconds) << "\n";
+// Function to save matrix to file
+void saveMatrixToFile(const cv::Mat& mat, std::ofstream& file) {
+    file << mat.rows << " " << mat.cols << "\n";
+    for(int i = 0; i < mat.rows; i++) {
+        for(int j = 0; j < mat.cols; j++) {
+            file << mat.at<double>(i,j) << " ";
+        }
+        file << "\n";
+    }
 }
 
-cv::Mat generateRandomMatrix(int rows, int cols) {
+// Function to read matrix from file
+cv::Mat readMatrixFromFile(std::ifstream& file) {
+    int rows, cols;
+    file >> rows >> cols;
     cv::Mat mat(rows, cols, CV_64F);
-    cv::randu(mat, 0.0, 1.0);
+    for(int i = 0; i < rows; i++) {
+        for(int j = 0; j < cols; j++) {
+            file >> mat.at<double>(i,j);
+        }
+    }
     return mat;
 }
 
+// Function to save results to output file
+void saveResults(const std::string& filename, const cv::Mat& chiimg_result, const cv::Mat& wip2_result) {
+    std::ofstream outFile(filename);
+    outFile.precision(10); // Set precision for floating-point numbers
+
+    outFile << "CHIIMG Result:\n";
+    saveMatrixToFile(chiimg_result, outFile);
+    outFile << "WIP2 Result:\n";
+    saveMatrixToFile(wip2_result, outFile);
+}
+
 int main() {
-    // Test parameters
-    const int LARGE_IMAGE_SIZE = 1000;  // 1000x1000 image
-    const int TEMPLATE_SIZE = 100;      // 100x100 template
-    const int ITERATIONS = 10;          // Number of times to run the test
+    const std::string inputFile = "input.txt";
+    const std::string outputFile = "output.txt";
 
-    std::cout << "Starting benchmark test with:\n";
-    std::cout << "Image size: " << LARGE_IMAGE_SIZE << "x" << LARGE_IMAGE_SIZE << "\n";
-    std::cout << "Template size: " << TEMPLATE_SIZE << "x" << TEMPLATE_SIZE << "\n";
-    std::cout << "Iterations: " << ITERATIONS << "\n";
+    // Check if input file exists
+    std::ifstream inFile(inputFile);
+    cv::Mat large_img, template_img;
 
-    // Generate large random test matrices
-    cv::Mat large_img = generateRandomMatrix(LARGE_IMAGE_SIZE, LARGE_IMAGE_SIZE);
-    cv::Mat template_img = generateRandomMatrix(TEMPLATE_SIZE, TEMPLATE_SIZE);
+    if (!inFile.good()) {
+        std::cout << "Generating new input file...\n";
 
-    // Warm-up run (to avoid first-run overhead)
-    auto [warmup_result, warmup_wip2] = chiimg(large_img, template_img);
+        // Generate and save random matrices
+        const int LARGE_IMAGE_SIZE = 1000;
+        const int TEMPLATE_SIZE = 100;
 
-    // Benchmark with different modes
-    std::vector<std::string> modes = {"full", "same", "valid"};
+        large_img = cv::Mat(LARGE_IMAGE_SIZE, LARGE_IMAGE_SIZE, CV_64F);
+        template_img = cv::Mat(TEMPLATE_SIZE, TEMPLATE_SIZE, CV_64F);
 
-    for (const auto& mode : modes) {
-        std::cout << "\nTesting mode: " << mode << "\n";
+        // Use constant seed for reproducibility
+        cv::RNG rng(12345);
+        rng.fill(large_img, cv::RNG::UNIFORM, 0, 1);
+        rng.fill(template_img, cv::RNG::UNIFORM, 0, 1);
 
-        auto start_time = std::chrono::high_resolution_clock::now();
-
-        // Run multiple iterations
-        for (int i = 0; i < ITERATIONS; i++) {
-            // Generate slightly different random noise each time
-            cv::Mat noise(large_img.size(), CV_64F);
-            cv::randn(noise, 0, 0.01);
-            cv::Mat noisy_img = large_img + noise;
-
-            auto [result_chiimg, result_Wip2] = chiimg(noisy_img, template_img, cv::Mat(), cv::Mat(), mode);
-
-            // Print progress
-            std::cout << "Completed iteration " << (i + 1) << "/" << ITERATIONS << "\r" << std::flush;
-        }
-
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-            (end_time - start_time);
-
-        printPerformanceStats("Mode: " + mode, duration, ITERATIONS);
+        // Save matrices to input file
+        std::ofstream outFile(inputFile);
+        outFile.precision(10);
+        outFile << "Large Image:\n";
+        saveMatrixToFile(large_img, outFile);
+        outFile << "Template Image:\n";
+        saveMatrixToFile(template_img, outFile);
+        outFile.close();
+    } else {
+        std::cout << "Reading from existing input file...\n";
+        std::string header;
+        std::getline(inFile, header); // Read "Large Image:" header
+        large_img = readMatrixFromFile(inFile);
+        std::getline(inFile, header); // Read empty line
+        std::getline(inFile, header); // Read "Template Image:" header
+        template_img = readMatrixFromFile(inFile);
     }
+    inFile.close();
 
-    // Additional stress test with different template sizes
-    std::cout << "\nRunning stress test with varying template sizes...\n";
-    std::vector<int> template_sizes = {50, 100, 200};
+    std::cout << "Running chiimg with input matrices...\n";
+    auto start_time = std::chrono::high_resolution_clock::now();
 
-    for (int size : template_sizes) {
-        cv::Mat test_template = generateRandomMatrix(size, size);
-        std::cout << "\nTesting template size: " << size << "x" << size << "\n";
+    // Run chiimg with the matrices
+    auto [result_chiimg, result_Wip2] = chiimg(large_img, template_img);
 
-        auto start_time = std::chrono::high_resolution_clock::now();
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
-        auto [result_chiimg, result_Wip2] = chiimg(large_img, test_template);
+    // Save results
+    saveResults(outputFile, result_chiimg, result_Wip2);
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-            (end_time - start_time);
-
-        printPerformanceStats("Template size: " + std::to_string(size), duration, 1);
-    }
+    // Print performance stats
+    double seconds = duration.count() / 1000000.0;
+    std::cout << "\nPerformance Stats:\n";
+    std::cout << "Total time: " << seconds << " seconds\n";
+    std::cout << "Image size: " << large_img.size() << "\n";
+    std::cout << "Template size: " << template_img.size() << "\n";
 
     return 0;
 }
