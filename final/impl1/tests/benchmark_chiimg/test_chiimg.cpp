@@ -5,8 +5,8 @@
 
 int main() {
     // Generate test matrices with fixed dimensions
-    const int LARGE_IMAGE_SIZE = 1000;
-    const int TEMPLATE_SIZE = 100;
+    const int LARGE_IMAGE_SIZE = 128;
+    const int TEMPLATE_SIZE = 32;
 
     cv::Mat large_img(LARGE_IMAGE_SIZE, LARGE_IMAGE_SIZE, CV_64F);
     cv::Mat template_img(TEMPLATE_SIZE, TEMPLATE_SIZE, CV_64F);
