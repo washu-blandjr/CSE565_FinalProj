@@ -19,6 +19,12 @@ https://adaptivesupport.amd.com/s/article/Vitis-Libraries-Compiling-and-Installi
   - hw_emu:
   - hw:
 
+Meaning of EASIER:
+```
+    const int LARGE_IMAGE_SIZE = 128;  // Reduced from 1000
+    const int TEMPLATE_SIZE = 32;      // Reduced from 100
+```
+
 ## ------- NOT COMPLETE ----------
 ### Timing (Benchmark 2)
 - Base C++ code running on linux: 9769 seconds
