@@ -19,7 +19,7 @@ https://adaptivesupport.amd.com/s/article/Vitis-Libraries-Compiling-and-Installi
   - hw_emu:
   - hw:
 
-------- NOT COMPLETE ----------
+## ------- NOT COMPLETE ----------
 ### Timing (Benchmark 2)
 - Base C++ code running on linux: 9769 seconds
 - Unoptimized vitis implementation:
