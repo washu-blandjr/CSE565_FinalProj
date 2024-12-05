@@ -12,11 +12,11 @@ https://adaptivesupport.amd.com/s/article/Vitis-Libraries-Compiling-and-Installi
 - Base C++ code running on linux: 0.589 seconds
 - Unoptimized vitis implementation:
   - sw_emu: 31.37 seconds
-  - hw_emu: 
-  - hw:
+  - hw_emu: 30.25
+  - hw: 28
 - Optimized vitis implementation:
-  - sw_emu:  seconds
-  - hw_emu:
+  - sw_emu: 54.32 seconds
+  - hw_emu: 
   - hw:
 
 Meaning of EASIER:
