@@ -6,16 +6,20 @@ https://adaptivesupport.amd.com/s/article/Vitis-Libraries-Compiling-and-Installi
 
 ### Timing (Benchmark 1)
 - Base C++ code running on linux: 300 seconds
+- Unoptimized/optimized vitis sw_EMU implementation: INSANELY LONG
+
+### Timing (Benchmark 1 - EASIER)
+- Base C++ code running on linux: 0.589 seconds
 - Unoptimized vitis implementation:
-  - sw_emu: 300 seconds
-  - hw_emu:
+  - sw_emu: 31.37 seconds
+  - hw_emu: 
   - hw:
 - Optimized vitis implementation:
   - sw_emu:  seconds
   - hw_emu:
   - hw:
 
-
+------- NOT COMPLETE ----------
 ### Timing (Benchmark 2)
 - Base C++ code running on linux: 9769 seconds
 - Unoptimized vitis implementation:
